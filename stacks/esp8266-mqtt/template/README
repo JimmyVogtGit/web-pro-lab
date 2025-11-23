@@ -1,0 +1,83 @@
+# Projet IoT ESP8266 – Publication MQTT sécurisée
+
+Ce projet montre comment connecter un ESP8266 à un réseau WiFi et publier des données sur un broker MQTT (Mosquitto) en toute sécurité, en utilisant un fichier `secrets.h` pour stocker les identifiants.
+
+---
+
+## Prérequis
+
+- ESP8266 (ex : Huzzah)
+- Arduino IDE ou PlatformIO
+- Mosquitto MQTT broker installé localement ou sur un serveur
+- Câble USB pour programmer l’ESP8266
+
+---
+
+## Installation
+
+### 1. Configuration du broker MQTT
+
+1. Installer Mosquitto sur Linux :
+
+```bash
+sudo apt update
+sudo apt install mosquitto mosquitto-clients
+```
+
+2. Activer broker :
+
+```bash
+sudo systemctl enable mosquitto
+sudo systemctl start mosquitto
+sudo systemctl status mosquitto
+```
+
+3. Ajouter user au broker :
+
+```bash
+sudo mosquitto_passwd -c /etc/mosquitto/passwd myuser
+
+```
+
+4. Modifier /etc/mosquitto/mosquitto.conf pour activer l’authentification :
+
+```bash
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+listener 1883
+
+```
+
+5. Redemarrer Mosquitto :
+
+```bash
+sudo systemctl restart mosquitto
+```
+
+### 2. Configuration les secrets
+
+1. Creer un fichier secrets.h à la racine :
+   Ajouter dans le .gitignore le fichier
+
+```bash
+#ifndef SECRETS_H
+#define SECRETS_H
+
+#define WIFI_SSID "TonSSID"
+#define WIFI_PASS "TonMotDePasse"
+#define MQTT_USER "myuser"
+#define MQTT_PASS "mypass"
+#define MQTT_SERVER "192.168.1.14"
+#define MQTT_PORT 1883
+
+#endif
+```
+
+### 3. Test du broker
+
+1. A l'aide de deux terminaux :
+   Publier un message manuellement :
+
+mosquitto_pub -h localhost -t my_configured_topic -m "Hello, World!" -u myuser -P mypass
+
+mosquitto_sub -h localhost -t my_configured_topic -u myuser -P mypass
